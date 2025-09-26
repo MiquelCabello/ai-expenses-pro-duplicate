@@ -1,0 +1,70 @@
+Hola, quiero que veas y entiendas la lógica que hay detrás de la creación de usuarios. Tu objetivo es solucionar el problema si no sigue la siguiente lógica.
+
+Hay 3 categorías de usuarios principalmente.
+
+Usuario Master que tiene acceso a todo, este usuario master la tiene la cuenta info@miquelcabello.com.
+Los que se crean desde la landing page llamados a partir de ahora Usuarios principales.
+Los que se crean desde la página de Usuarios principales, llamados a partir de ahora Usuarios de empresas.
+
+Estos siguen unas reglas:
+
+Los usuarios principales se pueden registrar con 3 tipos de cuentas diferentes.
+Cuentas Free:
+Hasta 40 gastos por mes
+Análisis de recibos con lA
+Dashboard básico
+2 usuarios incluidos en el plan
+Soporte por email
+
+Cuentas Profesionales: Lo integrado en Cuentas free +
+Gastos ilimitados
+IA avanzada con mayor precisión (diferencia entre ticket o factura)
+Analytics completos (con filtros)
+Poder crear 4 categorias, ampliables si se paga más
+Poder crear códigos de proyectos ilimitados
+Hasta 25 usuarios 
+Posibilidad de añadir el rol de administrador a 2 usuarios.
+Flujos de aprobación personalizados
+Exportación de datos (con filtros)
+Soporte prioritario
+Integraciones avanzadas
+
+Cuentas Enterprise: Lo integrado en cuentas Profesionales +
+Usuarios ilimitados
+Posibilidad de organizar departamentos dentro de la empresa, cada departamento con la posibilidad de poner el rol de administrador a un usuario.
+Cumplimiento RGPD avanzado
+Auditoría completa
+@ Soporte 24/7
+Implementación dedicada
+SLA garantizado
+
+El usuario principal solo tiene acceso a los usuarios que registra el mismo en el apartado de empleados. No tiene acceso a los datos de otros usuarios principales
+
+Los usuarios de empresas se registran de forma estándar con el rol de empleado.
+Si un usuario principal está con la cuenta profesional tendrá la opción de añadir 2 usuarios con rol de administrador. Al añadir este rol al usuario de empresa, este tendrá acceso a los datos de su empresa y podrá hacer todo lo que el usuario principal puede hacer
+Si un usuario principal está con la cuenta enterprise tendrá la opción de dividir sus empleados en departamentos, que a su vez cada departamento podrá tener su usuario administrador.
+El usuario administrador del departamento tendrá acceso a las mismas funciones que el usuario principal pero únicamente con los datos de su departamento.
+Si la cuenta principal lo decide, también podrá tener hasta un máximo de 2 cuentas con rol de administrador total, lo que le dará acceso a todos los datos de todos los departamentos y tendrá los mismos permisos que el usuario principal
+
+El rol de empleado solo tiene derecho a subir gastos. No verá los gastos del resto de compañeros
+
+El rol de empleado por lo tanto no verá la página de empleados. En su defecto habrá una página personalizada para los usuarios de empresas donde se encontrará la información de la empresa.
+
+Los usuarios principales tendrá una página dentro de configuración para configurar su información de empresa.
+Nadie ni los usuarios de empresa con rol administrador tendrá acceso a esta página.
+
+Ahora mismo hay 3 cuentas creadas.
+	1. Info@miquelcabello.com: Cuenta master
+	2. infosanjo1b@gmail.com: Cuenta enterprise de por vida
+	3. miquelfx@gmail.com: Usuario de empresa creado por infosanjo1b@gmail.com con rol de empleado.
+
+Habrá un plan de pagos para los diferentes tipos de cuentas. Después conectare para que se puedan hacer los pagos. 
+
+Cuenta free: Gratis
+Cuentas profesionales: 29/€ mes 
+Cuentas enterprise: 99€/mes
+
+La cuenta profesional tendrá una demo de 30 días, sin necesidad de poner tarjeta. Si una vez finalizado estos 30 días decide no seguir usándola, se borraran todos los registros hechos hasta el momento y pasará a ser una cuenta free.
+
+Habrá la opción de cogerlo todo el año por un 20% de descuento.
+

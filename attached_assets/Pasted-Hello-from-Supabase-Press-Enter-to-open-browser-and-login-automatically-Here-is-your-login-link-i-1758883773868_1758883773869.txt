@@ -1,0 +1,79 @@
+Hello from Supabase! Press Enter to open browser and login automatically.
+
+Here is your login link in case browser did not open https://supabase.com/dashboard/cli/login?session_id=23cb2931-b4bf-4a0a-af39-fe5a25137ce1&token_name=cli_runner@8e1515a1cbe1_1758883723&public_key=04ba92cff986145821d8ede88d2b89704db1a4c86ee2e1d3153d49ffcc18635425b3b5cb16bfe0d3c0dd9a8a98718e39ae68ecd6677fc9dbc413cc5f1877ae5a04
+
+Enter your verification code: 324617dc
+Token cli_runner@8e1515a1cbe1_1758883723 created successfully.
+
+You are now logged in. Happy coding!
+~/workspace$ npx supabase link --project-ref lewvnkdganfaavpwakah
+Initialising login role...
+Connecting to remote database...
+Finished supabase link.
+~/workspace$ npx supabase db push
+Initialising login role...
+Connecting to remote database...
+Do you want to push these migrations to the remote database?
+ • 20250930120000_fix_rls_policy_warnings.sql
+
+ [Y/n] y
+Applying migration 20250930120000_fix_rls_policy_warnings.sql...
+NOTICE (00000): policy "Account users can view profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Users can update their profile" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Admins manage account profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Account members can view profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Users or admins can update profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Admins can insert profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Admins can delete profiles" for relation "public.profiles" does not exist, skipping
+NOTICE (00000): policy "Account users can view categories" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Admins can update categories" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Admins can insert categories when allowed" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Admins can delete categories" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Account members can view categories" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Admins can insert categories" for relation "public.categories" does not exist, skipping
+NOTICE (00000): policy "Account users can view project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Admins manage project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Account members can view project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Admins can insert project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Admins can update project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Admins can delete project codes" for relation "public.project_codes" does not exist, skipping
+NOTICE (00000): policy "Account users can view files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Users upload files within account" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Users update their files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Account members can view files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Users can insert files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Users or admins can update files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Admins can delete files" for relation "public.files" does not exist, skipping
+NOTICE (00000): policy "Employees view their expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Employees insert expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Employees update own pending expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Admins view account expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Admins manage account expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Account members can view expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Account members can insert expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Account members can update expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Admins can delete expenses" for relation "public.expenses" does not exist, skipping
+NOTICE (00000): policy "Account users view audit logs" for relation "public.audit_logs" does not exist, skipping
+NOTICE (00000): policy "Account users insert audit logs" for relation "public.audit_logs" does not exist, skipping
+NOTICE (00000): policy "Account members can view audit logs" for relation "public.audit_logs" does not exist, skipping
+NOTICE (00000): policy "Account members can insert audit logs" for relation "public.audit_logs" does not exist, skipping
+ERROR: syntax error at or near "CREATE" (SQLSTATE 42601)      
+At statement: 63                                              
+DO $$                                                         
+DECLARE                                                       
+  has_account_id boolean := EXISTS (                          
+    SELECT 1                                                  
+    FROM information_schema.columns                           
+    WHERE table_schema = 'public'                             
+      AND table_name = 'profiles'                             
+      AND column_name = 'account_id'                          
+  );                                                          
+BEGIN                                                         
+  IF has_account_id THEN                                      
+    -- Multi-tenant policies ---------------------------------
+                                                              
+    -- Profiles                                               
+    EXECUTE $$CREATE POLICY "profiles_select_account_members" 
+              ^                                               
+Try rerunning the command with --debug to troubleshoot the error.
+~/workspace$ 

@@ -74,7 +74,7 @@ export default function ConfigurationPage() {
     ENTERPRISE: 'Enterprise',
   };
   const planConfig: Record<'FREE' | 'PROFESSIONAL' | 'ENTERPRISE', { maxEmployees: number | null; monthlyLimit: number | null; categoryLimit: number | null; projectLimit: number | null }> = {
-    FREE: { maxEmployees: 2, monthlyLimit: 50, categoryLimit: 0, projectLimit: 0 },
+    FREE: { maxEmployees: 2, monthlyLimit: 40, categoryLimit: 0, projectLimit: 0 },
     PROFESSIONAL: { maxEmployees: 25, monthlyLimit: null, categoryLimit: 5, projectLimit: 10 },
     ENTERPRISE: { maxEmployees: null, monthlyLimit: null, categoryLimit: null, projectLimit: null },
   };

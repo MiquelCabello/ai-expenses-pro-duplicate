@@ -1,0 +1,126 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.accounts (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  owner_user_id uuid NOT NULL,
+  name text NOT NULL,
+  plan USER-DEFINED NOT NULL DEFAULT 'FREE'::account_plan,
+  max_employees integer,
+  can_assign_roles boolean NOT NULL DEFAULT false,
+  can_assign_department boolean NOT NULL DEFAULT false,
+  can_assign_region boolean NOT NULL DEFAULT false,
+  can_add_custom_categories boolean NOT NULL DEFAULT false,
+  monthly_expense_limit integer,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT accounts_pkey PRIMARY KEY (id),
+  CONSTRAINT accounts_owner_user_id_fkey FOREIGN KEY (owner_user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.audit_logs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  actor_user_id uuid NOT NULL,
+  action text NOT NULL,
+  entity text NOT NULL,
+  entity_id uuid NOT NULL,
+  metadata jsonb,
+  ip_address text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  account_id uuid,
+  CONSTRAINT audit_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT audit_logs_actor_user_id_fkey FOREIGN KEY (actor_user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  budget_monthly numeric,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  account_id uuid,
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.expenses (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  employee_id uuid NOT NULL,
+  project_code_id uuid,
+  category_id uuid NOT NULL,
+  vendor text NOT NULL,
+  expense_date date NOT NULL,
+  amount_net numeric NOT NULL,
+  tax_vat numeric DEFAULT 0,
+  amount_gross numeric NOT NULL,
+  currency text NOT NULL DEFAULT 'EUR'::text,
+  payment_method USER-DEFINED NOT NULL,
+  status USER-DEFINED NOT NULL DEFAULT 'PENDING'::expense_status,
+  approver_id uuid,
+  approved_at timestamp with time zone,
+  rejection_reason text,
+  notes text,
+  receipt_file_id uuid,
+  source USER-DEFINED NOT NULL DEFAULT 'MANUAL'::expense_source,
+  hash_dedupe text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  user_id uuid,
+  doc_type USER-DEFINED,
+  doc_type_source USER-DEFINED,
+  classification_path text,
+  account_id uuid,
+  CONSTRAINT expenses_pkey PRIMARY KEY (id),
+  CONSTRAINT expenses_employee_id_fkey FOREIGN KEY (employee_id) REFERENCES auth.users(id),
+  CONSTRAINT expenses_project_code_id_fkey FOREIGN KEY (project_code_id) REFERENCES public.project_codes(id),
+  CONSTRAINT expenses_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id),
+  CONSTRAINT expenses_approver_id_fkey FOREIGN KEY (approver_id) REFERENCES auth.users(id),
+  CONSTRAINT expenses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT expenses_receipt_file_id_fkey FOREIGN KEY (receipt_file_id) REFERENCES public.receipt_files(id)
+);
+CREATE TABLE public.files (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  original_name text NOT NULL,
+  mime_type text NOT NULL,
+  size_bytes integer NOT NULL,
+  storage_key text NOT NULL,
+  checksum_sha256 text NOT NULL,
+  uploaded_by uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  metadata jsonb DEFAULT '{}'::jsonb,
+  account_id uuid,
+  CONSTRAINT files_pkey PRIMARY KEY (id),
+  CONSTRAINT files_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES auth.users(id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL UNIQUE,
+  name text NOT NULL,
+  role USER-DEFINED NOT NULL DEFAULT 'EMPLOYEE'::user_role,
+  department text,
+  region text,
+  status USER-DEFINED NOT NULL DEFAULT 'ACTIVE'::user_status,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  account_id uuid,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT profiles_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.accounts(id)
+);
+CREATE TABLE public.project_codes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  name text NOT NULL,
+  status USER-DEFINED NOT NULL DEFAULT 'ACTIVE'::project_status,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  account_id uuid,
+  CONSTRAINT project_codes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.receipt_files (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  path text NOT NULL UNIQUE,
+  original_name text,
+  mime_type text,
+  size bigint,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT receipt_files_pkey PRIMARY KEY (id),
+  CONSTRAINT receipt_files_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);

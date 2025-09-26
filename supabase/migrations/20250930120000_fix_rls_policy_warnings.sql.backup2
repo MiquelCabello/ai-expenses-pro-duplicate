@@ -88,7 +88,7 @@ BEGIN
     -- Multi-tenant policies ---------------------------------
 
     -- Profiles
-    EXECUTE $$CREATE POLICY "profiles_select_account_members"
+    EXECUTE 'CREATE POLICY "profiles_select_account_members"'
       ON public.profiles
       FOR SELECT
       USING (
@@ -99,9 +99,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "profiles_update_self_or_admin"
+    EXECUTE 'CREATE POLICY "profiles_update_self_or_admin"
       ON public.profiles
       FOR UPDATE
       USING (
@@ -143,9 +143,9 @@ BEGIN
               AND admin_p.account_id = public.profiles.account_id
           )
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "profiles_insert_admin_only"
+    EXECUTE 'CREATE POLICY "profiles_insert_admin_only"
       ON public.profiles
       FOR INSERT
       WITH CHECK (
@@ -157,9 +157,9 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.profiles.account_id
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "profiles_delete_admin_only"
+    EXECUTE 'CREATE POLICY "profiles_delete_admin_only"
       ON public.profiles
       FOR DELETE
       USING (
@@ -171,10 +171,10 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.profiles.account_id
         )
-      );$$;
+      );';
 
     -- Categories
-    EXECUTE $$CREATE POLICY "categories_select_account_members"
+    EXECUTE 'CREATE POLICY "categories_select_account_members"
       ON public.categories
       FOR SELECT
       USING (
@@ -185,9 +185,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "categories_write_admin_only"
+    EXECUTE 'CREATE POLICY "categories_write_admin_only"
       ON public.categories
       FOR ALL
       USING (
@@ -209,10 +209,10 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.categories.account_id
         )
-      );$$;
+      );';
 
     -- Project codes
-    EXECUTE $$CREATE POLICY "project_codes_select_account_members"
+    EXECUTE 'CREATE POLICY "project_codes_select_account_members"
       ON public.project_codes
       FOR SELECT
       USING (
@@ -223,9 +223,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "project_codes_write_admin_only"
+    EXECUTE 'CREATE POLICY "project_codes_write_admin_only"
       ON public.project_codes
       FOR ALL
       USING (
@@ -247,10 +247,10 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.project_codes.account_id
         )
-      );$$;
+      );';
 
     -- Files
-    EXECUTE $$CREATE POLICY "files_select_account_members"
+    EXECUTE 'CREATE POLICY "files_select_account_members"
       ON public.files
       FOR SELECT
       USING (
@@ -261,9 +261,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "files_insert_same_account"
+    EXECUTE 'CREATE POLICY "files_insert_same_account"
       ON public.files
       FOR INSERT
       WITH CHECK (
@@ -275,9 +275,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "files_update_owner_or_admin"
+    EXECUTE 'CREATE POLICY "files_update_owner_or_admin"
       ON public.files
       FOR UPDATE
       USING (
@@ -319,9 +319,9 @@ BEGIN
               AND admin_p.account_id = public.files.account_id
           )
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "files_delete_admin_only"
+    EXECUTE 'CREATE POLICY "files_delete_admin_only"
       ON public.files
       FOR DELETE
       USING (
@@ -333,10 +333,10 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.files.account_id
         )
-      );$$;
+      );';
 
     -- Expenses
-    EXECUTE $$CREATE POLICY "expenses_select_account_members"
+    EXECUTE 'CREATE POLICY "expenses_select_account_members"
       ON public.expenses
       FOR SELECT
       USING (
@@ -358,9 +358,9 @@ BEGIN
               AND admin_p.account_id = public.expenses.account_id
           )
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "expenses_insert_same_account"
+    EXECUTE 'CREATE POLICY "expenses_insert_same_account"
       ON public.expenses
       FOR INSERT
       WITH CHECK (
@@ -382,9 +382,9 @@ BEGIN
               AND admin_p.account_id = public.expenses.account_id
           )
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "expenses_update_owner_or_admin"
+    EXECUTE 'CREATE POLICY "expenses_update_owner_or_admin"
       ON public.expenses
       FOR UPDATE
       USING (
@@ -429,9 +429,9 @@ BEGIN
               AND admin_p.account_id = public.expenses.account_id
           )
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "expenses_delete_admin_only"
+    EXECUTE 'CREATE POLICY "expenses_delete_admin_only"
       ON public.expenses
       FOR DELETE
       USING (
@@ -443,10 +443,10 @@ BEGIN
             AND admin_p.status = 'ACTIVE'
             AND admin_p.account_id = public.expenses.account_id
         )
-      );$$;
+      );';
 
     -- Audit logs
-    EXECUTE $$CREATE POLICY "audit_logs_select_account_members"
+    EXECUTE 'CREATE POLICY "audit_logs_select_account_members"
       ON public.audit_logs
       FOR SELECT
       USING (
@@ -457,9 +457,9 @@ BEGIN
           ORDER BY p.created_at DESC
           LIMIT 1
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "audit_logs_insert_same_account"
+    EXECUTE 'CREATE POLICY "audit_logs_insert_same_account"
       ON public.audit_logs
       FOR INSERT
       WITH CHECK (
@@ -471,13 +471,13 @@ BEGIN
           LIMIT 1
         )
         AND actor_user_id = (select auth.uid())
-      );$$;
+      );';
 
   ELSE
     -- Single-tenant policies ---------------------------------
 
     -- Profiles
-    EXECUTE $$CREATE POLICY "profiles_select_self_or_admin"
+    EXECUTE 'CREATE POLICY "profiles_select_self_or_admin"
       ON public.profiles
       FOR SELECT
       USING (
@@ -488,9 +488,9 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "profiles_update_self_or_admin"
+    EXECUTE 'CREATE POLICY "profiles_update_self_or_admin"
       ON public.profiles
       FOR UPDATE
       USING (
@@ -510,9 +510,9 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "profiles_insert_admin_only"
+    EXECUTE 'CREATE POLICY "profiles_insert_admin_only"
       ON public.profiles
       FOR INSERT
       WITH CHECK (
@@ -522,15 +522,15 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
     -- Categories
-    EXECUTE $$CREATE POLICY "categories_select_authenticated"
+    EXECUTE 'CREATE POLICY "categories_select_authenticated"
       ON public.categories
       FOR SELECT
-      USING (TRUE);$$;
+      USING (TRUE);';
 
-    EXECUTE $$CREATE POLICY "categories_write_admin_only"
+    EXECUTE 'CREATE POLICY "categories_write_admin_only"
       ON public.categories
       FOR ALL
       USING (
@@ -548,15 +548,15 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
     -- Project codes
-    EXECUTE $$CREATE POLICY "project_codes_select_authenticated"
+    EXECUTE 'CREATE POLICY "project_codes_select_authenticated"
       ON public.project_codes
       FOR SELECT
-      USING (TRUE);$$;
+      USING (TRUE);';
 
-    EXECUTE $$CREATE POLICY "project_codes_write_admin_only"
+    EXECUTE 'CREATE POLICY "project_codes_write_admin_only"
       ON public.project_codes
       FOR ALL
       USING (
@@ -574,10 +574,10 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
     -- Files
-    EXECUTE $$CREATE POLICY "files_select_owner_or_admin"
+    EXECUTE 'CREATE POLICY "files_select_owner_or_admin"
       ON public.files
       FOR SELECT
       USING (
@@ -588,16 +588,16 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "files_insert_owner_only"
+    EXECUTE 'CREATE POLICY "files_insert_owner_only"
       ON public.files
       FOR INSERT
       WITH CHECK (
         uploaded_by = (select auth.uid())
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "files_update_owner_or_admin"
+    EXECUTE 'CREATE POLICY "files_update_owner_or_admin"
       ON public.files
       FOR UPDATE
       USING (
@@ -617,10 +617,10 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
     -- Expenses
-    EXECUTE $$CREATE POLICY "expenses_select_owner_or_admin"
+    EXECUTE 'CREATE POLICY "expenses_select_owner_or_admin"
       ON public.expenses
       FOR SELECT
       USING (
@@ -631,16 +631,16 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "expenses_insert_owner_only"
+    EXECUTE 'CREATE POLICY "expenses_insert_owner_only"
       ON public.expenses
       FOR INSERT
       WITH CHECK (
         employee_id = (select auth.uid())
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "expenses_update_owner_or_admin"
+    EXECUTE 'CREATE POLICY "expenses_update_owner_or_admin"
       ON public.expenses
       FOR UPDATE
       USING (
@@ -663,10 +663,10 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
     -- Audit logs
-    EXECUTE $$CREATE POLICY "audit_logs_select_owner_or_admin"
+    EXECUTE 'CREATE POLICY "audit_logs_select_owner_or_admin"
       ON public.audit_logs
       FOR SELECT
       USING (
@@ -677,14 +677,14 @@ BEGIN
           WHERE admin_p.user_id = (select auth.uid())
             AND admin_p.role = 'ADMIN'
         )
-      );$$;
+      );';
 
-    EXECUTE $$CREATE POLICY "audit_logs_insert_owner_only"
+    EXECUTE 'CREATE POLICY "audit_logs_insert_owner_only"
       ON public.audit_logs
       FOR INSERT
       WITH CHECK (
         actor_user_id = (select auth.uid())
-      );$$;
+      );';
 
   END IF;
 END;

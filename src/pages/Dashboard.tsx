@@ -46,7 +46,7 @@ export default function Dashboard() {
     ENTERPRISE: 'Enterprise',
   };
   const planConfig: Record<'FREE' | 'PROFESSIONAL' | 'ENTERPRISE', { monthlyLimit: number | null }> = {
-    FREE: { monthlyLimit: 50 },
+    FREE: { monthlyLimit: 40 },
     PROFESSIONAL: { monthlyLimit: null },
     ENTERPRISE: { monthlyLimit: null },
   };
@@ -99,6 +99,13 @@ export default function Dashboard() {
 
       const { data: expenses, error } = await expenseQuery;
       if (error) {
+        console.error('[Dashboard] Stats error', error);
+        // If table doesn't exist or schema is wrong, use default stats
+        if (error.code === '42703' || error.message?.includes('does not exist')) {
+          setStats(DEFAULT_DASHBOARD_STATS);
+          setLoading(false);
+          return;
+        }
         throw error;
       }
 

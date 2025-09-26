@@ -18,7 +18,7 @@ const pricingPlans: PricingPlan[] = [
     price: "Gratis",
     description: "Perfecto para equipos pequeños que empiezan",
     features: [
-      "Hasta 50 gastos por mes",
+      "Hasta 40 gastos por mes",
       "Análisis de recibos con IA",
       "Dashboard básico",
       "2 usuarios incluidos",

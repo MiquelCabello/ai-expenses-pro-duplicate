@@ -20,11 +20,11 @@ const PLAN_DEFAULTS: Record<'FREE' | 'PROFESSIONAL' | 'ENTERPRISE', {
     canAssignDepartment: false,
     canAssignRegion: false,
     canAddCustomCategories: false,
-    monthlyExpenseLimit: 50,
+    monthlyExpenseLimit: 40,
   },
   PROFESSIONAL: {
     maxEmployees: 25,
-    canAssignRoles: false,
+    canAssignRoles: true,
     canAssignDepartment: true,
     canAssignRegion: true,
     canAddCustomCategories: false,
@@ -54,9 +54,7 @@ export interface Account {
 
 const applyPlanDefaults = (account: Account): Account => {
   const defaults = PLAN_DEFAULTS[account.plan];
-  const normalizedRoleCapability = account.plan === 'ENTERPRISE'
-    ? (account.can_assign_roles ?? defaults.canAssignRoles)
-    : false;
+  const normalizedRoleCapability = account.can_assign_roles ?? defaults.canAssignRoles;
   return {
     ...account,
     max_employees: account.max_employees ?? defaults.maxEmployees,
@@ -180,7 +178,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           })
         : null;
 
-      if (!resolvedAccount) {
+      // CRITICAL: If profile already has account_id, NEVER override it with metadata fallbacks
+      if (!resolvedAccount && rawProfile.account_id) {
+        // Profile has account_id but no account data loaded - this means RLS is blocking
+        // Create a minimal account object to preserve the correct account_id
+        resolvedAccount = applyPlanDefaults({
+          id: rawProfile.account_id as string,
+          name: currentUser.email ?? 'Cuenta principal',
+          plan: fallbackPlan,
+          owner_user_id: currentUser.id,
+          max_employees: null,
+          can_assign_roles: undefined,
+          can_assign_department: fallbackPlan !== 'FREE',
+          can_assign_region: fallbackPlan !== 'FREE',
+          can_add_custom_categories: fallbackPlan === 'ENTERPRISE',
+          monthly_expense_limit: fallbackPlan === 'FREE' ? 40 : null,
+        });
+      } else if (!resolvedAccount) {
         const fallbackAccountId = (hasAccountId && rawProfile.account_id)
           ? (rawProfile.account_id as string)
           : (typeof metadata?.account_id === 'string' && metadata.account_id.length > 0
@@ -201,26 +215,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           plan: fallbackPlan,
           owner_user_id: fallbackOwnerId,
           max_employees: null,
-          can_assign_roles: fallbackPlan === 'ENTERPRISE',
+          can_assign_roles: undefined,
           can_assign_department: fallbackPlan !== 'FREE',
           can_assign_region: fallbackPlan !== 'FREE',
           can_add_custom_categories: fallbackPlan === 'ENTERPRISE',
-          monthly_expense_limit: fallbackPlan === 'FREE' ? 50 : null,
+          monthly_expense_limit: fallbackPlan === 'FREE' ? 40 : null,
         });
       }
 
+      // CRITICAL: Always check if this is the Master user first, regardless of profile data
       if (isOwnerEmail(currentUser.email)) {
-        const accountId = hasAccountId && rawProfile.account_id
-          ? (rawProfile.account_id as string)
-          : resolvedAccount?.id ?? currentUser.id;
-
+        // Master user should always have their own Enterprise account
+        const masterAccountId = currentUser.id; // Master always uses their user_id as account_id
+        
         baseProfile.role = 'ADMIN';
         baseProfile.status = 'ACTIVE';
-        if (hasAccountId) {
-          baseProfile.account_id = accountId;
-        }
+        baseProfile.account_id = masterAccountId;
 
-        resolvedAccount = buildEnterpriseAccount(accountId, baseProfile.name);
+        resolvedAccount = buildEnterpriseAccount(masterAccountId, baseProfile.name);
       } else if (resolvedAccount) {
         if (!baseProfile.account_id) {
           baseProfile.account_id = resolvedAccount.id;
@@ -250,7 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         let enrichedProfile = data;
 
-        if (enrichedProfile && !enrichedProfile.account) {
+        if (enrichedProfile) {
           const hasAccountId = Object.prototype.hasOwnProperty.call(enrichedProfile, 'account_id');
           const candidateAccountId = hasAccountId ? enrichedProfile.account_id : null;
 

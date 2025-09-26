@@ -37,7 +37,7 @@ interface Employee {
 }
 
 export default function EmployeesPage() {
-  const { profile, account } = useAuth();
+  const { profile, account, isMaster } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,8 +80,14 @@ export default function EmployeesPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (accountId) {
+      // Master user sees ALL employees from ALL accounts
+      // Regular admins only see employees from their account (excluding themselves)
+      if (!isMaster && accountId) {
         query = query.eq('account_id', accountId);
+        // Exclude the account owner (admin) from their own employee list
+        if (profile?.user_id) {
+          query = query.neq('user_id', profile.user_id);
+        }
       }
 
       const { data, error } = await query;
@@ -107,7 +113,7 @@ export default function EmployeesPage() {
     } finally {
       setLoading(false);
     }
-  }, [accountId]);
+  }, [accountId, isMaster]);
 
   useEffect(() => {
     if (profile?.role === 'ADMIN') {
@@ -144,37 +150,46 @@ export default function EmployeesPage() {
       const sanitizedDepartment = canAssignDepartment ? newEmployee.department.trim() : '';
       const sanitizedRegion = canAssignRegion ? newEmployee.region.trim() : '';
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) {
-        throw new Error('SESSION_NOT_FOUND');
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-employee`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-          name: newEmployee.name.trim(),
-          email,
-          role: sanitizedRole,
-          department: canAssignDepartment ? sanitizedDepartment || null : null,
-          region: canAssignRegion ? sanitizedRegion || null : null
-        })
+      // Send invitation email (Supabase will handle user creation when they accept)
+      const { data: authData, error: authError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          data: {
+            name: newEmployee.name.trim(),
+            role: sanitizedRole,
+            account_id: accountId,
+            department: sanitizedDepartment || null,
+            region: sanitizedRegion || null
+          }
+        }
       });
 
-      if (!response.ok) {
-        let message = 'Error creando empleado';
-        try {
-          const payload = await response.json();
-          message = payload?.message || payload?.error || message;
-        } catch {}
-        throw new Error(message);
+      if (authError) {
+        console.error('Auth invitation failed:', authError);
+        throw new Error('Error sending invitation: ' + authError.message);
       }
 
-      toast.success('Invitación enviada al nuevo empleado');
+      // Create a placeholder profile record that will be activated when user signs up
+      const placeholderId = crypto.randomUUID();
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: placeholderId, // Temporary ID, will be updated when user activates
+          name: newEmployee.name.trim(),
+          role: sanitizedRole,
+          department: sanitizedDepartment || null,
+          region: sanitizedRegion || null,
+          status: 'INACTIVE', // Will be activated when user accepts invitation
+          account_id: accountId
+        });
+
+      if (profileError) {
+        console.error('Profile creation failed:', profileError);
+        throw new Error('Error creating employee profile: ' + profileError.message);
+      }
+
+      toast.success(`Invitación enviada a ${email}. El empleado recibirá un email para crear su cuenta.`);
       setIsCreateDialogOpen(false);
       setNewEmployee({
         name: '',
